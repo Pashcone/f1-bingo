@@ -1,0 +1,27 @@
+<form [formGroup]="ruleForm" (ngSubmit)="onSubmit()">
+  <div class="form-line poppins-regular">
+    <label> Name: </label>
+
+    <input formControlName="name" />
+    @if(ruleForm.get('name')?.invalid && ruleForm.get('name')?.touched){
+    <div>Name is required.</div>
+    } 
+  </div>
+
+  <div class="form-line">
+    <label> Description: </label>
+
+    <input formControlName="description" />
+    @if(ruleForm.get('description')?.invalid && ruleForm.get('description')?.touched){
+    <div>Enter a valid description.</div>
+    }
+  </div>
+  <div class="form-line">
+    <label>
+      <input type="checkbox" formControlName="agree" />
+      User Rule.
+    </label>
+  </div>
+
+  <button type="submit">Add Rule</button>
+</form>

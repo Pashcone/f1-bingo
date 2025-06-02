@@ -1,0 +1,15 @@
+@if(bingo$ | async; as bingo){
+<h1>{{ bingo.raceId }}</h1>
+}
+<div class="bingo-matrix">
+  @if(bingo$ | async; as bingo){ @for(rule of bingo.rules; track $index){
+  <button
+    class="btn f1-button"
+    [ngClass]="{ 'pressed-button': isRuleChecked(rule.id) }"
+    (click)="addCheck(rule)"
+    [disabled]="isRuleChecked(rule.id)"
+  >
+    {{ rule.name }} {{$index }}
+  </button>
+  }}
+</div>

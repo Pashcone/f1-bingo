@@ -1,0 +1,25 @@
+<div class="home-container">
+  @for (obj of this.races; track $index) {
+  <div class="card-container">
+    <div class="header-container"></div>
+    <h3 class="card-title">Round {{ obj.round }}</h3>
+    <p>
+      {{ capitalizeFirstLetter(obj.grandPrixId) }} <br />
+      {{ obj.officialName }} <br />
+      {{ extractDateParts(obj.date).monthAbbr }}
+      {{ extractDateParts(obj.date).day }} <br />
+      <img src="{{ obj.flagImg }}" alt="{{ obj.flagImg }}" />
+    </p>
+  </div>
+  }
+
+  <div class="bordered-box">
+    <span class="box-title">Title Text</span>
+    <div class="box-content">Your content goes here.</div>
+  </div>
+</div>
+
+<!-- <button (click)="getCSF()">AAAAAAAAAAA</button>
+<app-bingo-game></app-bingo-game> -->
+
+<!-- <img src="https://media.formula1.com/content/dam/fom-website/2018-redesign-assets/Flags%2016x9/bahrain-flag.png" alt=""> -->
