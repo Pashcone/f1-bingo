@@ -1,10 +1,48 @@
-nav{
-    width: calc(100% - 2rem);
-    height: calc(50px - 2rem);
-    background-color: rgb(209, 209, 209);
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    align-items: center;
-    padding: 1rem;
+nav {
+  width: calc(100% - 2rem);
+  height: calc(120px - 2rem);
+  background-color: var(--red-color);
+  color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+img {
+  width: 50px;
+  height: 50px;
+  border-radius: 20%;
+  border: 5px solid white;
+}
+
+.left-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
+}
+
+h1{
+  font-family: "f1font";
+  font-size: 37px;
+}
+
+.f1-logo {
+  width: 120px;
+  height: 100%;
+  background: white;
+
+  mask: url("../../../../assets/svg/f1_logo.svg");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: contain;
+  mask-size: contain;
+
+  -webkit-mask-position: center;
+  mask-position: center;
 }

@@ -33,6 +33,7 @@ export type Race = {
   sprintRaceTime?: string;
 
   flagImg: string;
+  trackImg: string;
 };
 
 export type RacesData = {

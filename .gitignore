@@ -37,6 +37,7 @@ yarn-error.log
 testem.log
 /typings
 db.json
+src/assets/users/*
 
 # System files
 .DS_Store

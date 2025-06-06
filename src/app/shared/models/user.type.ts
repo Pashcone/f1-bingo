@@ -5,4 +5,5 @@ export type User = {
   name: string;
   wins: Bingo[];
   jokerRulesIds: string[];
+  imagePath?: string;
 };

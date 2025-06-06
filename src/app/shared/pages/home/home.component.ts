@@ -1,18 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { RuleFormComponent } from '../../components/rule-form/rule-form.component';
 import { BingoService } from '../../services/bingo/bingo.service';
 import { Bingo, Rule } from '../../models/bingo.type';
-import { UserFormComponent } from '../../components/user-form/user-form.component';
 import { Race } from '../../models/race.type';
 import { User } from '../../models/user.type';
-import { BingoGameComponent } from '../../components/bingo-game/bingo-game.component';
+import { RaceCardComponent } from "../../components/race-card/race-card.component";
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, CommonModule],
-  providers: [],
+  imports: [RouterModule, CommonModule, RaceCardComponent],
+  providers: [RaceCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -50,11 +48,11 @@ export class HomeComponent implements OnInit {
     this.service.getBingoForUser();
   }
 
-  extractDateParts(dateStr: string): { monthAbbr: string, day: number } {
+ extractDateParts(dateStr: string): { monthAbbr: string, day: string } {
   const date = new Date(dateStr);
 
-  const monthAbbr = date.toLocaleString('en-US', { month: 'short' }); // "Feb"
-  const day = date.getDate(); // 22
+  const monthAbbr = date.toLocaleString('en-US', { month: 'short' }); // e.g., "Apr"
+  const day = String(date.getDate()).padStart(2, '0'); // "04" instead of 4
 
   return { monthAbbr, day };
 }

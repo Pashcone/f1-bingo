@@ -69,12 +69,13 @@ export class BingoService implements OnInit {
     });
   }
 
-  addUser(user: string): Observable<User> {
+  addUser(user: string, imagePath: string): Observable<User> {
     const newId = this.generateRandomId();
-    const newUser = { name: user, id: newId, wins: [], jokerRulesIds: [] };
+    const newUser = { name: user, id: newId, wins: [], jokerRulesIds: [], imagePath: imagePath };
     return this.http.post<User>(`${this.apiUrl}/users`, newUser).pipe(
       tap((data) => {
         this.usersSubject.next([...this.usersSubject.value, data]);
+        this.activeUser = data;
       })
     );
   }

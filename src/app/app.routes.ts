@@ -32,11 +32,23 @@ export const routes: Routes = [
       {
         path: 'login',
         loadComponent: () =>
-          import('./shared/pages/select-user/select-user.component').then(
-            (m) => m.SelectUserComponent
+          import('./shared/components/login/login.component').then(
+            (m) => m.LoginComponent
           ),
       },
+      {
+        path: 'register',
+        loadComponent: () =>
+          import('./shared/components/register/register.component').then(
+            (m) => m.RegisterComponent
+          ),
+      },
+      {
+        path: '**',
+        redirectTo: 'login',
+      },
     ],
+
   },
   {
     path: '**',
