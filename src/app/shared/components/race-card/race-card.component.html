@@ -1,4 +1,4 @@
-@if(race) { @if(!active){
+@if(race) { @if(!active){ EEEE
 <div class="card-container">
   <h3 class="card-title">Round {{ race.round }}</h3>
   <div class="header-container">
@@ -36,42 +36,41 @@
   }
 </div>
 } @else {
-<div class="extended-card-container">
-  <div class="extended-card-container-inner">
-    <h3 class="card-title">Round {{ race.round }}</h3>
-    <div class="header-container">
-      <div class="day-container">
-        <p>
-          {{ extractDateParts(race.date).day }}-{{
-            extractDateParts(race.freePractice1Date).day
-          }}
-        </p>
-        <img src="{{ race.flagImg }}" alt="{{ race.flagImg }}" />
-      </div>
-      <div class="month-container">
-        <p class="inverse-date">{{ extractDateParts(race.date).monthAbbr }}</p>
-        <div class="img-container">
-          <img src="assets/images/flag.png" alt="" />
-        </div>
-      </div>
-    </div>
-
-    <hr />
-
-    <div class="race-info-container">
-      <h4>
-        {{ capitalizeFirstLetter(race.grandPrixId) }}
-        <span class="arrow">></span>
-      </h4>
+<div class="active-card-container">
+  <div>
+  <h3 class="card-title">Round {{ race.round }}</h3>
+  <div class="header-container">
+    <div class="day-container">
       <p>
-        {{ race.officialName }}
+        {{ extractDateParts(race.date).day }}-{{
+          extractDateParts(race.freePractice1Date).day
+        }}
       </p>
+      <img src="{{ race.flagImg }}" alt="{{ race.flagImg }}" />
     </div>
-    @if(race.trackImg){
-    <div class="track-img-container">
-      <img src="{{ race.trackImg }}" alt="{{ race.trackImg }}" />
+    <div class="month-container">
+      <p class="inverse-date">{{ extractDateParts(race.date).monthAbbr }}</p>
+      <div class="img-container">
+        <img src="assets/images/flag.png" alt="" />
+      </div>
     </div>
-    }
   </div>
+
+  <hr />
+
+  <div class="race-info-container">
+    <h4>
+      {{ capitalizeFirstLetter(race.grandPrixId) }}
+      <span class="arrow">></span>
+    </h4>
+    <p>
+      {{ race.officialName }}
+    </p>
+  </div>
+  @if(race.trackImg){
+  <div class="track-img-container">
+    <img src="{{ race.trackImg }}" alt="{{ race.trackImg }}" />
+  </div>
+  }
 </div>
 } }

@@ -1,10 +1,11 @@
 import { race } from 'rxjs';
 import { Component, Input } from '@angular/core';
 import { Race } from '../../models/race.type';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-race-card',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './race-card.component.html',
   styleUrl: './race-card.component.scss',
 })

@@ -13,6 +13,10 @@ export class LoginComponent {
   isRegister = false;
   users: User[] = [];
 
+
+  text: string = 'Jofi is the best!';
+  buttonApasat: boolean = false;
+
   constructor(private service: BingoService, private router: Router) {
     this.service.users$.subscribe((users) => {
       this.users = users;

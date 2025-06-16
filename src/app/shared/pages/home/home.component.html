@@ -1,9 +1,7 @@
 <div class="home-container">
-  @for (race of this.races; track $index) { @if(race.round === 1 ) {
-  <app-race-card class="active-card" [race]="race" [active]="true"></app-race-card>
-  } @else {
-  <app-race-card class="card" [race]="race"></app-race-card>
-  } }
+  @for (race of this.races; track $index) {
+  <app-race-card class="card" [race]="race" [active]="race.round === 1" [ngClass]="{'active-card': race.round === 1}"></app-race-card>
+  }
 </div>
 
 <!-- <button (click)="getCSF()">AAAAAAAAAAA</button>
