@@ -16,17 +16,17 @@ export class RaceCardComponent {
   extractDateParts(dateStr: string): { monthAbbr: string; day: string } {
     const date = new Date(dateStr);
 
-    const monthAbbr = date.toLocaleString('en-US', { month: 'short' }); // e.g., "Apr"
-    const day = String(date.getDate()).padStart(2, '0'); // "04" instead of 4
+    const monthAbbr = date.toLocaleString('en-US', { month: 'short' });
+    const day = String(date.getDate()).padStart(2, '0');
 
     return { monthAbbr, day };
   }
 
   capitalizeFirstLetter(str: string): string {
-  return str
-    .replace(/-/g, ' ') // Replace hyphens with spaces
-    .split(' ')         // Split into words
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter
-    .join(' ');         // Join back into a string
-}
+    return str
+      .replace(/-/g, ' ')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
 }
