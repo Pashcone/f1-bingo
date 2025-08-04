@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { BingoService } from '../../services/bingo/bingo.service';
 import { BingoWithRules, CheckedRule, Rule } from '../../models/bingo.type';
 import { CommonModule } from '@angular/common';
@@ -10,34 +10,61 @@ import { Observable, tap } from 'rxjs';
   templateUrl: './bingo-game.component.html',
   styleUrl: './bingo-game.component.scss',
 })
-export class BingoGameComponent implements OnInit {
+export class BingoGameComponent implements OnInit, OnChanges {
   rules: Rule[] = [];
   activeBingo?: BingoWithRules;
   checkedRules$?: Observable<CheckedRule[]>;
   bingo$?: Observable<BingoWithRules>;
+  activeRule: Rule = {} as Rule;
+  activeIndex: number = -1;
   constructor(private service: BingoService) {}
 
   ngOnInit(): void {
     this.service.getBingoForUser();
     this.bingo$ = this.service.activeBingo$;
-    this.checkedRules$ = this.service.checkedRules$;
     this.bingo$.subscribe((e) => {
       this.activeBingo = e;
+      console.log('activeBingo', e.rulesIds[0]);
     });
-    this.checkedRules$.subscribe();
   }
 
-  isRuleChecked(ruleId: string): boolean {
-    const checked = this.activeBingo?.checkedRules?.find(
-      (e) => e.ruleId === ruleId
-    );
-    if (checked) return true;
+  ngOnChanges(changes: SimpleChanges): void {
+    // if(changes){
+    //   this.activeRule = changes['activeRule']?.currentValue || {} as Rule;
+    // }
+    // this.service.getBingoForUser().pipe(
+    //   tap((bingo) => {
+    //     this.activeRule = this.activeBingo?.rules
+    //   })
+    // )
+  }
+
+  isRuleChecked(index: number): boolean {
+    if(this.activeBingo?.checkedRules[index]) return true;
     return false;
   }
 
-  addCheck(rule: Rule) {
-    const check = this.service.addCheckedRule(rule.id).subscribe();
+  addCheck(ruleIndex: number) {
+    this.activeRule = this.activeBingo!.rules![ruleIndex]
+    this.activeIndex = ruleIndex;
   }
 
+  checkRule() {
+    this.service.addCheckedRule(this.activeIndex).subscribe();
+  }
+
+  unCheckRule() {
+    this.service.deleteCheckedRule(this.activeIndex).subscribe();
+  }
+
+  closeDialog(){
+    this.activeRule = {} as Rule;
+    this.activeIndex = -1;
+  }
+
+  changeRule() {
+    this.activeRule = this.service.replaceRuleInSelected(this.activeRule.id)
+
+  }
 
 }

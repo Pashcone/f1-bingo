@@ -1,6 +1,6 @@
 nav {
   width: calc(100% - 2rem);
-  height: calc(120px - 2rem);
+  height: calc(70px - 2rem);
   background-color: var(--red-color);
   color: white;
   display: flex;
@@ -11,15 +11,15 @@ nav {
 }
 
 img {
-  width: 50px;
-  height: 50px;
+  width: 3rem;
   border-radius: 20%;
-  border: 5px solid white;
+  border: 0.2rem solid white;
+  aspect-ratio: 1 / 1;
 }
 
 .left-container {
   height: 100%;
-  width: 100%;
+  width: 2rem !important;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -46,3 +46,15 @@ h1{
   -webkit-mask-position: center;
   mask-position: center;
 }
+
+
+.rules-button{
+  width: 5rem;
+  height: 2rem;
+  border: 0.2rem solid white;
+  margin-right: 1rem;
+  font-size: 1rem;
+  background-color: white;
+  border-radius: 2rem
+}
+

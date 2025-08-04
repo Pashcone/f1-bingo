@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
 userForm: FormGroup;
+shownImagePath: string = 'https://i.pinimg.com/736x/8f/3e/21/8f3e21eb5b4c29cdf845378cbbe90f12.jpg';
   @Input() isEdit: boolean = false;
 
   constructor(
@@ -24,12 +25,19 @@ userForm: FormGroup;
     });
   }
 
+  onImageChange() {
+      this.service.checkImage(this.userForm.get('imagePath')?.value).then((exists) => {
+            if (!exists) {
+              this.shownImagePath = 'https://i.pinimg.com/736x/8f/3e/21/8f3e21eb5b4c29cdf845378cbbe90f12.jpg'; // Default image if the URL is invalid
+            }
+            else {
+              this.shownImagePath = this.userForm.get('imagePath')?.value;
+            }
+          });
+    this.shownImagePath = this.userForm.get('imagePath')?.value || 'https://i.pinimg.com/736x/8f/3e/21/8f3e21eb5b4c29cdf845378cbbe90f12.jpg';
+  }
+
   onSubmit() {
-    if (this.userForm.valid) {
-      console.log('Form Submitted:', this.userForm.value);
-    } else {
-      console.log('Form Invalid');
-    }
     const newUserName = this.userForm.get('name')?.value;
     const newUserImagePath = this.userForm.get('imagePath')?.value;
 

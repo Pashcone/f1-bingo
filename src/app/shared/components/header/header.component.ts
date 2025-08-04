@@ -20,4 +20,11 @@ export class HeaderComponent {
     this.router.navigate(['bingo']);
   }
 
+  redirectToRulesPage() {
+    this.router.navigate(['/rules']);
+  }
+
+  redirectToHome(){
+    this.router.navigate(['/home']);
+  }
 }

@@ -1,0 +1,19 @@
+<div class="rules-container">
+  <h1>Rules Page {{getRuleCount()}}</h1>
+  <!-- Content for the rules page will go here -->
+  <p>Here you can view and manage the rules for the game.</p>
+  <ul>
+    @for(rule of rules; track $index) { @if(!rule.jokerUserId){
+    <li style="font-size: 1.2rem; list-style: none;">{{ rule.name }}</li>
+    <p style="margin-bottom: 2rem;">{{ rule.description }}</p>
+    } }
+
+    <h2 style="color: var(--red-color);">Your Rules</h2>
+    @for(rule of rules; track $index) { @if(rule.jokerUserId === activeUser!.id){
+    <li style="font-size: 1.2rem; list-style: none; color: var(--red-color);">{{ rule.name }}</li>
+    <p style="margin-bottom: 2rem;">{{ rule.description }}</p>
+    } }
+  </ul>
+
+  <app-rule-form></app-rule-form>
+</div>

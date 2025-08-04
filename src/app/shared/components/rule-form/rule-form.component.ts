@@ -27,19 +27,21 @@ export class RuleFormComponent {
   }
 
   onSubmit() {
-    if (this.ruleForm.valid) {
-      console.log('Form Submitted:', this.ruleForm.value);
+    let newRule;
+    if (this.ruleForm.get('isJoker')?.value) {
+      newRule = {
+        name: this.ruleForm.get('name')?.value,
+        description: this.ruleForm.get('description')?.value,
+        jokerUserId: this.service.getActiveUser()?.id,
+      };
     } else {
-      console.log('Form Invalid');
+      newRule = {
+        name: this.ruleForm.get('name')?.value,
+        description: this.ruleForm.get('description')?.value,
+      };
     }
-    console.log(this.ruleForm.get('name')?.value);
 
-    const newRule = {
-      id: this.service.generateRandomId(),
-      name: this.ruleForm.get('name')?.value,
-      description: this.ruleForm.get('description')?.value,
-    };
-
-    this.service.addRule(newRule).subscribe();
+    this.service.addRule(newRule!).subscribe();
+    this.ruleForm.reset();
   }
 }

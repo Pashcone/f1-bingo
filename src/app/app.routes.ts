@@ -23,6 +23,13 @@ export const routes: Routes = [
             (m) => m.BingoComponent
           ),
       },
+      {
+        path: 'rules',
+        loadComponent: () =>
+          import('./shared/pages/rules-page/rules-page.component').then(
+            (m) => m.RulesPageComponent
+          ),
+      },
     ],
   },
   {
@@ -48,7 +55,6 @@ export const routes: Routes = [
         redirectTo: 'login',
       },
     ],
-
   },
   {
     path: '**',

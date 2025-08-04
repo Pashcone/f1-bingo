@@ -1,9 +1,9 @@
 <nav>
   <div class="left-container">
-    <div class="f1-logo"></div>
-    <h1>BINGO</h1>
+    <div (click)="redirectToHome()" class="f1-logo"></div>
+    <h1 (click)="redirectToHome()">BINGO</h1>
   </div>
-  <button (click)="redirect()"><img src="{{ activeUser?.imagePath }}" alt="" /></button>
 
-  <!-- <button (click)="redirect()">Bingo</button> -->
+  <button class="rules-button" (click)="redirectToRulesPage()">Rules</button>
+  <img src="{{ activeUser?.imagePath }}" alt="" />
 </nav>

@@ -7,6 +7,7 @@
   border-top: 2px solid black;
   border-radius: 0 20px 0 0;
   padding: 10px;
+  height: calc(100% - 22px);
 }
 
 .card-title {
@@ -103,9 +104,19 @@ hr {
   width: auto;
   height: min-content;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
+
+  .info-container{
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+  }
 
   .arrow {
     line-height: 10px;
@@ -121,54 +132,37 @@ hr {
   p {
     margin: 0;
   }
-}
 
-.track-img-container {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 10/5;
-  background-color: white;
-  background-image: linear-gradient(to right, #ccc 1px, transparent 1px),
-    linear-gradient(to bottom, #ccc 1px, transparent 1px);
-  background-size: 10px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    width: auto;
-    height: 100%;
-    object-fit: cover;
-
-    border-radius: 0 0 20px 20px;
-  }
-}
-
-.active-card-container {
-  position: relative;
-  display: flex;
-  justify-content: flex-start;
-  flex-direction: row;
-  border-right: 2px solid var(--red-color);
-  border-top: 2px solid var(--red-color);
-  border-radius: 0 20px 0 0;
-  padding: 10px;
-  background-color: black;
-
-  .track-img-container {
+  .winners-container{
     width: 100%;
-    height: 50%;
-    aspect-ratio: 10/5;
-    background-color: black;
-    background-image: linear-gradient(to right, #ffffff23 1px, transparent 1px),
-      linear-gradient(to bottom, #ffffff23 1px, transparent 1px);
-    background-size: 10px 10px;
+    height: fit-content;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 10px;
 
     img {
-      filter: invert(100%) !important;
+      width: 30px;
+      height: 30px;
+      object-fit: cover;
     }
   }
+}
+
+
+.column-flex{
+  flex-direction: column !important;
+  gap: 10px;
+}
+
+.row-flex{
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+}
+
+
+.bingo-button{
+  width: 60%;
+  height: 60%;
 }

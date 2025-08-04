@@ -1,15 +1,41 @@
-@if(bingo$ | async; as bingo){
-<h1>{{ bingo.raceId }}</h1>
-}
 <div class="bingo-matrix">
-  @if(bingo$ | async; as bingo){ @for(rule of bingo.rules; track $index){
+  @if(bingo$ | async; as bingo){ @for(rule of bingo.rules; track $index; let i =
+  $index) {
   <button
-    class="btn f1-button"
-    [ngClass]="{ 'pressed-button': isRuleChecked(rule.id) }"
-    (click)="addCheck(rule)"
-    [disabled]="isRuleChecked(rule.id)"
+    [ngClass]="{ 'pressed-button': i === activeIndex }"
+    (click)="addCheck(i)"
   >
-    {{ rule.name }} {{$index }}
+    @if(isRuleChecked(i)){
+    <span></span>
+    }
+
+    <h3>{{ rule.name }}</h3>
   </button>
   }}
 </div>
+
+@if(activeIndex !== -1){
+<div class="description-container">
+  <h2>{{ activeRule.name }}</h2>
+
+  <p>{{ activeRule.description }}</p>
+  <div class="buttons">
+    @if(!isRuleChecked(activeIndex)){
+    <button
+      style="margin-right: auto"
+      class="btn f1-button"
+      (click)="checkRule()"
+    >
+      Check Rule
+    </button>
+    @if(activeBingo?.refreshNumber){
+    <button class="btn f1-button" (click)="changeRule()">
+      REFRESH THE RULE ({{ activeBingo?.refreshNumber }})
+    </button>
+    } }@else{
+    <button class="btn f1-button" (click)="unCheckRule()">Uncheck Rule</button>
+    }
+  </div>
+  <button class="close-button" (click)="closeDialog()">X</button>
+</div>
+}

@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-auth-layout',
-  imports: [SelectUserComponent, RouterModule],
+  imports: [RouterModule],
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.scss',
 })
