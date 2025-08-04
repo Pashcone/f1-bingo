@@ -1,11 +1,3 @@
 <div class="login-container">
-@if(!isRegister){
-    @for(user of users; track $index){
-        <button (click)="selectUser(user.id)" class="btn f1-button">{{ user.name }}</button>
-    }
-    <button (click)="register()" class="btn f1-button">Create User</button>
-}
-@else {
-    <app-user-form></app-user-form>
-}
+  <router-outlet></router-outlet>
 </div>

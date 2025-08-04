@@ -40,19 +40,17 @@ export class BingoService implements OnInit {
   private racesSubject = new BehaviorSubject<Race[]>([]);
   private bingosSubject = new BehaviorSubject<Bingo[]>([]);
   private rulesSubject = new BehaviorSubject<Rule[]>([]);
-  private checkedRulesSubject = new BehaviorSubject<CheckedRule[]>([]);
   private activeBingoSubject = new BehaviorSubject<BingoWithRules>(
     {} as BingoWithRules
   );
+  private activeSessionChecked = new BehaviorSubject<boolean>(false);
 
   users$ = this.usersSubject.asObservable();
   races$ = this.racesSubject.asObservable();
   bingos$ = this.bingosSubject.asObservable();
   rules$ = this.rulesSubject.asObservable();
-  checkedRules$ = this.checkedRulesSubject.asObservable();
   activeBingo$ = this.activeBingoSubject.asObservable();
-
-  activeSession: Race | null = null;
+  activeSessionChecked$ = this.activeSessionChecked.asObservable();
   activeUser: User | null = null;
 
   loadAllData() {
@@ -60,6 +58,7 @@ export class BingoService implements OnInit {
     this.loadRaces();
     this.loadBingos();
     this.loadRules();
+    this.isActiveSession();
   }
 
   // Users
@@ -69,12 +68,19 @@ export class BingoService implements OnInit {
     });
   }
 
-  addUser(user: string): Observable<User> {
+  addUser(user: string, imagePath: string): Observable<User> {
     const newId = this.generateRandomId();
-    const newUser = { name: user, id: newId, wins: [], jokerRulesIds: [] };
+    const newUser = {
+      name: user,
+      id: newId,
+      wins: [],
+      jokerRulesIds: [],
+      imagePath: imagePath,
+    };
     return this.http.post<User>(`${this.apiUrl}/users`, newUser).pipe(
       tap((data) => {
         this.usersSubject.next([...this.usersSubject.value, data]);
+        this.activeUser = data;
       })
     );
   }
@@ -115,10 +121,10 @@ export class BingoService implements OnInit {
   }
 
   updateRace(race: Race): Observable<Race> {
-    return this.http.put<Race>(`${this.apiUrl}/races/${race.id}`, race).pipe(
+    return this.http.put<Race>(`${this.apiUrl}/races/${race.round}`, race).pipe(
       tap((updated) => {
         const updatedList = this.racesSubject.value.map((r) =>
-          r.id === updated.id ? updated : r
+          r.round === updated.round ? updated : r
         );
         this.racesSubject.next(updatedList);
       })
@@ -128,7 +134,9 @@ export class BingoService implements OnInit {
   deleteRace(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/races/${id}`).pipe(
       tap(() => {
-        const updatedList = this.racesSubject.value.filter((r) => r.id !== id);
+        const updatedList = this.racesSubject.value.filter(
+          (r) => r.round !== id
+        );
         this.racesSubject.next(updatedList);
       })
     );
@@ -161,23 +169,12 @@ export class BingoService implements OnInit {
               const bingo = { ...this.activeBingoSubject.value, rules: e };
               this.activeBingoSubject.next(bingo);
             });
-            this.loadCheckedRules(this.activeBingoSubject.value.id!).subscribe(
-              (e: CheckedRule[]) => {
-                const bingo = {
-                  ...this.activeBingoSubject.value,
-                  checkedRules: e,
-                };
-                this.activeBingoSubject.next(bingo);
-              }
-            );
           } else {
             this.generateBingo(userId, raceId, year, type).subscribe();
           }
         })
       )
-      .subscribe((e) =>
-        console.log('this.activeBingoSubject', this.activeBingoSubject.value)
-      );
+      .subscribe();
   }
 
   addBingo(bingo: Bingo): Observable<Bingo> {
@@ -199,20 +196,54 @@ export class BingoService implements OnInit {
 
   setBingoToWin(bingoId: string): Observable<Bingo> {
     const bingo = this.activeBingoSubject.value;
-    const BingoWithWin = {
+    const date = new Date();
+    const BingoWithWin: Bingo = {
       id: bingo.id,
       raceId: bingo.raceId,
       userId: bingo.userId,
       rulesIds: bingo.rulesIds,
+      checkedRules: bingo.checkedRules,
       type: bingo.type,
+      lastChecked: bingo.lastChecked,
       year: bingo.year,
-      win: true,
+      win: date,
+      refreshNumber: bingo.refreshNumber,
     };
     return this.http
       .put<Bingo>(`${this.apiUrl}/bingos/${bingoId}`, BingoWithWin)
       .pipe(
         tap((updated) => {
-          console.log('updated bingo', updated);
+          let newBingo = this.activeBingoSubject.value;
+          newBingo.win = updated.win;
+          this.activeBingoSubject.next(newBingo);
+
+          const updatedList = this.bingosSubject.value.map((b) =>
+            b.id === updated.id ? updated : b
+          );
+          this.bingosSubject.next(updatedList);
+        })
+      );
+  }
+
+  setBingoToNotWin(bingoId: string): Observable<Bingo> {
+    const bingo = this.activeBingoSubject.value;
+    const BingoWithWin: Bingo = {
+      id: bingo.id,
+      raceId: bingo.raceId,
+      userId: bingo.userId,
+      rulesIds: bingo.rulesIds,
+      checkedRules: bingo.checkedRules,
+      type: bingo.type,
+      lastChecked: bingo.lastChecked,
+      year: bingo.year,
+      refreshNumber: bingo.refreshNumber,
+    };
+    return this.http
+      .put<Bingo>(`${this.apiUrl}/bingos/${bingoId}`, BingoWithWin)
+      .pipe(
+        tap((updated) => {
+          const { win, ...newBingo } = this.activeBingoSubject.value;
+          this.activeBingoSubject.next(newBingo);
           const updatedList = this.bingosSubject.value.map((b) =>
             b.id === updated.id ? updated : b
           );
@@ -278,48 +309,40 @@ export class BingoService implements OnInit {
     );
   }
 
-  // Checked Rules
-  loadCheckedRules(bingoId: string): Observable<CheckedRule[]> {
-    return this.http.get<CheckedRule[]>(`${this.apiUrl}/checkedRules`).pipe(
-      tap((data) => {
-        this.checkedRulesSubject.next(data);
-      })
-    );
-  }
-
-  addCheckedRule(ruleId: string): Observable<CheckedRule> {
-    const newCheckedRule: CheckedRule = {
-      id: this.generateRandomId(),
-      ruleId: ruleId,
-      bingoId: this.activeBingoSubject.value.id!,
-    };
+  addCheckedRule(ruleIndex: number): Observable<Bingo> {
+    const { rules, ...bingoPatch } = this.activeBingoSubject.value;
+    bingoPatch.lastChecked.push(new Date());
+    bingoPatch.checkedRules[ruleIndex] = true;
 
     return this.http
-      .post<CheckedRule>(`${this.apiUrl}/checkedRules`, newCheckedRule)
+      .patch<Bingo>(`${this.apiUrl}/bingos/${bingoPatch.id}`, bingoPatch)
       .pipe(
         tap((data) => {
-          const checkedRules = this.checkedRulesSubject.value;
-          this.checkedRulesSubject.next([...checkedRules, data]);
-          const bingo = this.activeBingoSubject.value;
-          this.activeBingoSubject.next({
-            ...bingo,
-            checkedRules: this.checkedRulesSubject.value,
-          });
+          const bingo = {
+            ...this.activeBingoSubject.value,
+            checkedRules: data.checkedRules,
+          };
+          this.activeBingoSubject.next(bingo);
+          this.checkIfBingoWin();
+        })
+      );
+  }
 
-          const index = this.activeBingoSubject.value.rules?.findIndex(
-            (e) => e.id === ruleId
-          );
-          console.log('index', index);
-          if (
-            index !== undefined &&
-            index !== -1 &&
-            this.activeBingoSubject.value.rules
-          ) {
-            this.isRowOrColumnChecked(
-              this.activeBingoSubject.value.rules,
-              index
-            );
-          }
+  deleteCheckedRule(ruleIndex: number): Observable<Bingo> {
+    const { rules, ...bingoPatch } = this.activeBingoSubject.value;
+    bingoPatch.checkedRules[ruleIndex] = false;
+    bingoPatch.lastChecked.pop();
+
+    return this.http
+      .patch<Bingo>(`${this.apiUrl}/bingos/${bingoPatch.id}`, bingoPatch)
+      .pipe(
+        tap((data) => {
+          const bingo = {
+            ...this.activeBingoSubject.value,
+            checkedRules: data.checkedRules,
+          };
+          this.activeBingoSubject.next(bingo);
+          this.checkIfBingoWin();
         })
       );
   }
@@ -338,13 +361,10 @@ export class BingoService implements OnInit {
     const date = this.getDate();
     const year = date.date.split('-')[0];
     const activeRace = this.isActiveSession();
-    console.log('activeRace', activeRace);
-
-    console.log(this.activeUser, activeRace, year);
     if (this.activeUser && activeRace && year) {
       this.getBingosByRaceAndUser(
         this.activeUser.id,
-        activeRace.id,
+        activeRace.round,
         year,
         'RACE'
       );
@@ -371,15 +391,17 @@ export class BingoService implements OnInit {
       id,
       raceId,
       userId,
+      checkedRules: Array(25).fill(false),
       rulesIds: bingoRules.map((e) => e.id),
       type,
+      lastChecked: [],
       year: Number(year),
+      refreshNumber: 3,
     };
 
     return this.addBingo(newBingo).pipe(
       tap((data) => {
         const newBingoWithRules = { ...newBingo, rules: bingoRules };
-        console.log('newBingoWithRules', newBingoWithRules);
         this.activeBingoSubject.next(newBingoWithRules);
       })
     );
@@ -399,12 +421,6 @@ export class BingoService implements OnInit {
 
     const shuffledArrayTwo = [...arrayTwo].sort(() => Math.random() - 0.5);
     const selectedFromArrayTwo = shuffledArrayTwo.slice(0, ArrayTwoCount);
-
-    console.log(
-      'shuffledOne',
-      shuffledOne,
-      [...shuffledOne, ...selectedFromArrayTwo].sort(() => Math.random() - 0.5)
-    );
 
     return [...shuffledOne, ...selectedFromArrayTwo].sort(
       () => Math.random() - 0.5
@@ -431,13 +447,13 @@ export class BingoService implements OnInit {
 
   isActiveSession() {
     const races = this.racesSubject.value;
-    const race = races.find((r) => this.isFourDaysAwayFromToday(r.date));
-    console.log('isActiveSession', race);
-    return race;
+    const race = races.find((r) => this.isFourDaysAwayFromToday(r.sessions.gp));
+
+    if (race) return race;
+    return null;
   }
 
   isFourDaysAwayFromToday(dateString: string): boolean {
-    console.log('dateString', dateString);
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
     const targetDate = new Date(dateString);
@@ -457,49 +473,205 @@ export class BingoService implements OnInit {
     const diffDays =
       (targetMidnight.getTime() - todayMidnight.getTime()) / MS_PER_DAY;
 
-    console.log('diffDays', diffDays, diffDays <= 4 && diffDays >= 0);
     return diffDays <= 4 && diffDays >= 0;
   }
 
-  isRuleChecked(ruleId: string): boolean {
-    const checked = this.activeBingoSubject.value.checkedRules?.find(
-      (e) => e.ruleId === ruleId
-    );
-    return !!checked;
+  isBeforeToday(date: string | Date): boolean {
+    const givenDate = new Date(date);
+    const today = new Date();
+
+    givenDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return givenDate < today;
   }
 
-  isRowOrColumnChecked(rules: Rule[], index: number): boolean {
-    if (rules.length !== 25) {
-      throw new Error('Array must contain exactly 25 elements.');
+  isBeforeOrToday(date: string | Date): boolean {
+    const givenDate = new Date(date);
+    const today = new Date();
+
+    givenDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return givenDate <= today;
+  }
+
+  checkIfBingoWin() {
+    const ok = this.hasTrueLine(this.activeBingoSubject.value.checkedRules);
+    if (ok && !this.activeBingoSubject.value.win) {
+      this.setBingoToWin(this.activeBingoSubject.value.id!).subscribe(
+        (b) => {}
+      );
+    } else if (!ok && this.activeBingoSubject.value.win) {
+      this.setBingoToNotWin(this.activeBingoSubject.value.id!).subscribe(
+        (b) => {}
+      );
+    }
+  }
+
+  hasTrueLine(matrix: boolean[]): boolean {
+    if (matrix.length !== 25) {
+      throw new Error('Matrix must be 5x5 (25 elements)');
     }
 
-    const row = Math.floor(index / 5);
-    const col = index % 5;
-
-    // Check row
-    let rowChecked = true;
-    for (let i = 0; i < 5; i++) {
-      if (!this.isRuleChecked(rules[row * 5 + i].id)) {
-        rowChecked = false;
-        break;
+    for (let row = 0; row < 5; row++) {
+      const start = row * 5;
+      if (matrix.slice(start, start + 5).every(Boolean)) {
+        return true;
       }
     }
 
-    // Check column
-    let colChecked = true;
-    for (let i = 0; i < 5; i++) {
-      if (!this.isRuleChecked(rules[i * 5 + col].id)) {
-        colChecked = false;
-        break;
+    for (let col = 0; col < 5; col++) {
+      if ([0, 1, 2, 3, 4].every((row) => matrix[row * 5 + col])) {
+        return true;
       }
     }
-    if (rowChecked || colChecked) {
-      this.setBingoToWin(this.activeBingoSubject.value.id!).subscribe();
-      this.activeBingoSubject.next({
-        ...this.activeBingoSubject.value,
-        win: true,
+    return false;
+  }
+
+  checkImage(url: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  }
+
+  getWinnersForHomeCard(round: number): User[] {
+    if (round) {
+      const filteredBingos = this.bingosSubject.value.filter(
+        (b) => b.raceId === round
+      );
+
+      const bingoWinByBingo = filteredBingos.filter(
+        (b) => b.win !== undefined && b.win !== null
+      );
+      const bingoWinByCount = filteredBingos.filter((b) => !b.win);
+
+      bingoWinByBingo.sort((a, b) => {
+        const dateA = new Date(a.win!).getTime();
+        const dateB = new Date(b.win!).getTime();
+        return dateA - dateB;
       });
+
+      bingoWinByCount.sort((a, b) => {
+        const dateA = new Date(
+          a.lastChecked[a.lastChecked.length - 1]
+        ).getTime();
+        const dateB = new Date(
+          b.lastChecked[b.lastChecked.length - 1]
+        ).getTime();
+        return dateA - dateB;
+      });
+
+      const sortedBingos = this.sortByDateDescending(filteredBingos, 'win');
+
+      let winnersByBingo: User[] = [];
+      let winnersByNumber: User[] = [];
+
+      bingoWinByCount.sort((a, b) => {
+        const countDiff = b.lastChecked.length - a.lastChecked.length;
+
+        if (countDiff !== 0) return countDiff;
+
+        const aLast = new Date(
+          a.lastChecked[a.lastChecked.length - 1]
+        ).getTime();
+        const bLast = new Date(
+          b.lastChecked[b.lastChecked.length - 1]
+        ).getTime();
+
+        return bLast - aLast;
+      });
+
+      const result = bingoWinByBingo.slice(0, 3);
+
+      for (const item of bingoWinByCount) {
+        if (result.length >= 3) break;
+        result.push(item);
+      }
+
+      result.forEach((bingo) => {
+        if (winnersByBingo.length > 2) return;
+        winnersByBingo.push(
+          this.usersSubject.value.find((user) => user.id === bingo.userId) ||
+            ({} as User)
+        );
+      });
+
+      return winnersByBingo;
     }
-    return rowChecked || colChecked;
+
+    return [];
+  }
+
+  sortByDateDescending(items: any[], dateKey: string): any[] {
+    return items.sort((a, b) => {
+      const dateA = new Date(a[dateKey]).getTime();
+      const dateB = new Date(b[dateKey]).getTime();
+      return dateA - dateB;
+    });
+  }
+
+  calculateWinners() {}
+
+  replaceRuleInSelected(ruleIdToReplace: string): Rule {
+    console.log('replaceRuleInSelected', ruleIdToReplace);
+    const rules = this.rulesSubject.value || [];
+    const selectedRules = this.activeBingoSubject.value.rules || [];
+    const index = selectedRules.findIndex(
+      (rule) => rule.id === ruleIdToReplace
+    );
+
+    const usedIds = new Set(
+      selectedRules.filter((_, idx) => idx !== index).map((rule) => rule.id)
+    );
+    const candidates = rules.filter((rule) => !usedIds.has(rule.id));
+    const availableCandidates = candidates.filter(
+      (rule) => rule.id !== ruleIdToReplace
+    );
+
+    const replacement =
+      availableCandidates[
+        Math.floor(Math.random() * availableCandidates.length)
+      ];
+
+    const ruleIds = selectedRules
+      .map((rule) => rule.id)
+      .map((id) => {
+        if (id === ruleIdToReplace) {
+          return replacement.id;
+        }
+        return id;
+      });
+
+    const newSelected = [...selectedRules];
+    newSelected[index] = replacement;
+    // console.log('this.activeBingoSubject.value', this.activeBingoSubject.value)
+
+    const newBingo = {
+      id: this.activeBingoSubject.value.id,
+      reaceId: this.activeBingoSubject.value.raceId,
+      userId: this.activeBingoSubject.value.userId,
+      checkedRules: this.activeBingoSubject.value.checkedRules,
+      rulesIds: ruleIds,
+      type: this.activeBingoSubject.value.type,
+      lastChecked: this.activeBingoSubject.value.lastChecked,
+      year: this.activeBingoSubject.value.year,
+      win: this.activeBingoSubject.value.win,
+      refreshNumber: this.activeBingoSubject.value.refreshNumber - 1,
+    };
+    this.updateBingo(newBingo).subscribe((updatedBingo) => {
+      const newBingoWithRules: BingoWithRules = {
+        ...updatedBingo,
+        rules: newSelected,
+      };
+      this.activeBingoSubject.next(newBingoWithRules);
+    });
+
+    // console.log(this.activeBingoSubject.value)
+
+    return replacement;
   }
 }

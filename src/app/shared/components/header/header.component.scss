@@ -1,10 +1,60 @@
-nav{
-    width: calc(100% - 2rem);
-    height: calc(50px - 2rem);
-    background-color: rgb(209, 209, 209);
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    align-items: center;
-    padding: 1rem;
+nav {
+  width: calc(100% - 2rem);
+  height: calc(70px - 2rem);
+  background-color: var(--red-color);
+  color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
 }
+
+img {
+  width: 3rem;
+  border-radius: 20%;
+  border: 0.2rem solid white;
+  aspect-ratio: 1 / 1;
+}
+
+.left-container {
+  height: 100%;
+  width: 2rem !important;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
+}
+
+h1{
+  font-family: "f1font";
+  font-size: 37px;
+}
+
+.f1-logo {
+  width: 120px;
+  height: 100%;
+  background: white;
+
+  mask: url("../../../../assets/svg/f1_logo.svg");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: contain;
+  mask-size: contain;
+
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+
+.rules-button{
+  width: 5rem;
+  height: 2rem;
+  border: 0.2rem solid white;
+  margin-right: 1rem;
+  font-size: 1rem;
+  background-color: white;
+  border-radius: 2rem
+}
+

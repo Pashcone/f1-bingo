@@ -1,1 +1,37 @@
-<p>register works!</p>
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+  <div class="segment">
+    <label> Name: </label>
+
+    <input
+      formControlName="name"
+      placeholder="User Name"
+      class="form-input-material"
+    />
+    @if(userForm.get('name')?.invalid && userForm.get('name')?.touched){
+    <div>Name is required.</div>
+    }
+  </div>
+  <div class="segment">
+    <label> ImageUrl: </label>
+
+    <input
+      formControlName="imagePath"
+      placeholder="Image Url"
+      class="form-input-material"
+      (change)="onImageChange()"
+    />
+    @if(userForm.get('imagePath')?.invalid &&
+    userForm.get('imagePath')?.touched){
+    <div>Image Url is required.</div>
+    }
+  </div>
+  <div class="segment">
+    <img
+      src="{{ shownImagePath }}"
+      alt="Your Image"
+      class="user-image"
+    />
+  </div>
+
+  <button class="btn f1-button" type="submit" [disabled]="!userForm.valid">Create User</button>
+</form>

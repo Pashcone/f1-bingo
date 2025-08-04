@@ -3,14 +3,16 @@ export type Bingo = {
   raceId: number;
   userId: string;
   rulesIds: string[];
+  checkedRules: boolean[];
   type: BingoType;
   year: number;
-  win?: boolean;
+  lastChecked: Date[];
+  win?: Date;
+  refreshNumber: number;
 };
 
 export type BingoWithRules = Bingo & {
   rules?: Rule[];
-  checkedRules?: CheckedRule[];
 };
 
 export type Rule = {

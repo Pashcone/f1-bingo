@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { BingoService } from '../../services/bingo/bingo.service';
 import { User } from '../../models/user.type';
-import { Router } from '@angular/router';
-import { UserFormComponent } from '../../components/user-form/user-form.component';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-select-user',
-  imports: [UserFormComponent],
+  imports: [RouterModule],
   templateUrl: './select-user.component.html',
   styleUrl: './select-user.component.scss',
 })
@@ -17,7 +16,6 @@ export class SelectUserComponent {
   constructor(private service: BingoService, private router: Router) {
     this.service.users$.subscribe((users) => {
       this.users = users;
-      this.selectUser(this.users[0]?.id);
     });
   }
 

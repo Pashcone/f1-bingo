@@ -1,0 +1,94 @@
+@if(race) { @if(!active) {
+<div class="card-container">
+  <h3 class="card-title">Round {{ race.round }}</h3>
+  <div class="header-container">
+    <div class="day-container">
+      <p>
+        {{ extractDateParts(race.sessions.gp).day }}-{{
+          extractDateParts(race.sessions.fp1).day
+        }}
+      </p>
+      <!-- <img src="{{ race.flagImg }}" alt="{{ race.flagImg }}" /> -->
+    </div>
+    <div class="month-container">
+      <p class="inverse-date">
+        {{ extractDateParts(race.sessions.gp).monthAbbr }}
+      </p>
+      <div class="img-container">
+        <img src="assets/images/flag.png" alt="" />
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="race-info-container" [ngClass]="{ 'column-flex': wasActive() }">
+    <div class="info-container" [ngClass]="{ 'row-flex': wasActive() }">
+      <h4>
+        {{ capitalizeFirstLetter(race.name) }}
+        <span class="arrow">></span>
+      </h4>
+      <p>
+        {{ race.location }}
+      </p>
+    </div>
+
+    @if(getWinners().length > 0) {
+    <div class="winners-container">
+      @if(users[0]){<img
+        src="{{ users[0].imagePath }}"
+        alt=""
+        style="width: 70px; height: 70px"
+      />} @if(users[1]){<img
+        src="{{ users[1].imagePath }}"
+        alt=""
+        style="width: 60px; height: 60px"
+      />} @if(users[2]){<img
+        src="{{ users[2].imagePath }}"
+        alt=""
+        style="width: 50px; height: 50px"
+      />}
+    </div>
+    }
+  </div>
+</div>
+} @else{
+<div class="card-container">
+  <h3 class="card-title">Round {{ race.round }}</h3>
+  <div class="header-container">
+    <div class="day-container">
+      <p>
+        {{ extractDateParts(race.sessions.gp).day }}-{{
+          extractDateParts(race.sessions.fp1).day
+        }}
+      </p>
+      <!-- <img src="{{ race.flagImg }}" alt="{{ race.flagImg }}" /> -->
+    </div>
+    <div class="month-container">
+      <p class="inverse-date">
+        {{ extractDateParts(race.sessions.gp).monthAbbr }}
+      </p>
+      <div class="img-container">
+        <img src="assets/images/flag.png" alt="" />
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="race-info-container">
+    <div class="info-container">
+      <h4>
+        {{ capitalizeFirstLetter(race.name) }}
+        <span class="arrow">></span>
+      </h4>
+      <p>
+        {{ race.location }}
+      </p>
+    </div>
+    <button class="btn f1-button bingo-button" (click)="redirectToBingo()">
+      BINGO!
+    </button>
+  </div>
+</div>
+} }

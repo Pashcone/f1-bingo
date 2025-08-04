@@ -1,13 +1,11 @@
 @import url(../../../styles.scss);
 
-.hehe{
-    font-family: 'f1fontWide' !important;
-    color: var(--red-color);
-    font-size: 2rem;
-}
-
-
-img{
-    width: 50px;
-    height: auto;
+.login-container{
+  width: 100dvw;
+  height: auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }

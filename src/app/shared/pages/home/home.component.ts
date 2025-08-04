@@ -1,29 +1,29 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { RuleFormComponent } from '../../components/rule-form/rule-form.component';
+import { Router, RouterModule } from '@angular/router';
 import { BingoService } from '../../services/bingo/bingo.service';
 import { Bingo, Rule } from '../../models/bingo.type';
-import { UserFormComponent } from '../../components/user-form/user-form.component';
 import { Race } from '../../models/race.type';
 import { User } from '../../models/user.type';
-import { BingoGameComponent } from '../../components/bingo-game/bingo-game.component';
+import { RaceCardComponent } from '../../components/race-card/race-card.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, CommonModule],
-  providers: [],
+  imports: [RouterModule, CommonModule, RaceCardComponent],
+  providers: [RaceCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-  constructor(private service: BingoService) {}
+  constructor(private service: BingoService, private router: Router) {}
 
   users: User[] = [];
   rules: Rule[] = [];
   races: Race[] = [];
   bingos: Bingo[] = [];
+  activeRace: Race | null = null;
 
+  csf : any;
   ngOnInit(): void {
     this.service.users$.subscribe((user: User[]) => {
       this.users = user;
@@ -35,11 +35,15 @@ export class HomeComponent implements OnInit {
 
     this.service.races$.subscribe((races: Race[]) => {
       this.races = races;
+
+      this.activeRace = this.service.isActiveSession();
     });
 
     this.service.bingos$.subscribe((bingos: Bingo[]) => {
       this.bingos = bingos;
     });
+
+    this.csf = this.service.calculateWinners()
   }
 
   capitalizeFirstLetter(arr: string) {
@@ -47,15 +51,19 @@ export class HomeComponent implements OnInit {
   }
 
   getCSF() {
-    this.service.getBingoForUser();
+    console.log(this.service.getWinnersForHomeCard(14))
   }
 
-  extractDateParts(dateStr: string): { monthAbbr: string, day: number } {
-  const date = new Date(dateStr);
+  extractDateParts(dateStr: string): { monthAbbr: string; day: string } {
+    const date = new Date(dateStr);
 
-  const monthAbbr = date.toLocaleString('en-US', { month: 'short' }); // "Feb"
-  const day = date.getDate(); // 22
+    const monthAbbr = date.toLocaleString('en-US', { month: 'short' });
+    const day = String(date.getDate()).padStart(2, '0');
 
-  return { monthAbbr, day };
-}
+    return { monthAbbr, day };
+  }
+
+  redirectToRuleForm(){
+    this.router.navigate(['/rules']);
+  }
 }

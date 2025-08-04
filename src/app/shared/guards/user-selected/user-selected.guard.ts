@@ -10,8 +10,6 @@ export class UserSelectedGuard implements CanActivate {
 
   canActivate(): boolean {
     const user = this.service.getActiveUser();
-
-    console.log(user);
     if (user) {
       return true;
     } else {
