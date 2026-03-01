@@ -16,18 +16,18 @@ export class RaceCardComponent {
   @Input() race?: Race;
   @Input() active: boolean = false;
   @Input() winners: User[] = [];
-  users : User[] = [];
+  users: User[] = [];
 
-  constructor(private service: BingoService, private router: Router) {
-  }
-
+  constructor(
+    private service: BingoService,
+    private router: Router,
+  ) {}
 
   wasActive(): boolean {
     // console.log(this.race?.round)
     // console.log(this.service.isBeforeOrToday(this.race?.sessions.gp!))
     return this.service.isBeforeOrToday(this.race?.sessions.gp!);
   }
-
 
   extractDateParts(dateStr: string): { monthAbbr: string; day: string } {
     const date = new Date(dateStr);
@@ -46,14 +46,13 @@ export class RaceCardComponent {
       .join(' ');
   }
 
-
-  getWinners() : User[] {
-    this.users = this.service.getWinnersForHomeCard(this.race?.round || 0)
+  getWinners(): User[] {
+    this.users = this.service.getWinnersForHomeCard(this.race?.round || 0);
     // console.log(this.users)
-    return this.users
+    return this.users;
   }
 
-  redirectToBingo(){
+  redirectToBingo() {
     this.router.navigate(['/bingo']);
   }
 }

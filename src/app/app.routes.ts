@@ -30,6 +30,13 @@ export const routes: Routes = [
             (m) => m.RulesPageComponent
           ),
       },
+      {
+        path: 'leaderboard',
+        loadComponent: () =>
+          import('./shared/pages/leaderboard/leaderboard.component').then(
+            (m) => m.LeaderboardComponent
+          ),
+      }
     ],
   },
   {

@@ -22,6 +22,7 @@ export class BingoService implements OnInit {
 
   ngOnInit(): void {
     this.loadAllData();
+    this.loadJMK();
   }
 
   generateRandomId(length: number = 10): string {
@@ -36,12 +37,26 @@ export class BingoService implements OnInit {
     return result;
   }
 
+  private racesV2Subject = new BehaviorSubject<any[]>([]);
+  racesV2$ = this.racesV2Subject.asObservable();
+
+  loadJMK() {
+    this.http
+      .get<any>(
+        `https://api.openf1.org/v1/sessions?year=2026&session_name=Race`,
+      )
+      .subscribe((data) => {
+        this.racesV2Subject.next(data);
+        console.log('data', data);
+      });
+  }
+
   private usersSubject = new BehaviorSubject<User[]>([]);
   private racesSubject = new BehaviorSubject<Race[]>([]);
   private bingosSubject = new BehaviorSubject<Bingo[]>([]);
   private rulesSubject = new BehaviorSubject<Rule[]>([]);
   private activeBingoSubject = new BehaviorSubject<BingoWithRules>(
-    {} as BingoWithRules
+    {} as BingoWithRules,
   );
   private activeSessionChecked = new BehaviorSubject<boolean>(false);
 
@@ -54,6 +69,7 @@ export class BingoService implements OnInit {
   activeUser: User | null = null;
 
   loadAllData() {
+    this.loadJMK();
     this.loadUsers();
     this.loadRaces();
     this.loadBingos();
@@ -81,7 +97,7 @@ export class BingoService implements OnInit {
       tap((data) => {
         this.usersSubject.next([...this.usersSubject.value, data]);
         this.activeUser = data;
-      })
+      }),
     );
   }
 
@@ -89,10 +105,10 @@ export class BingoService implements OnInit {
     return this.http.put<User>(`${this.apiUrl}/users/${user.id}`, user).pipe(
       tap((updated) => {
         const updatedList = this.usersSubject.value.map((u) =>
-          u.id === updated.id ? updated : u
+          u.id === updated.id ? updated : u,
         );
         this.usersSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -101,7 +117,7 @@ export class BingoService implements OnInit {
       tap(() => {
         const updatedList = this.usersSubject.value.filter((u) => u.id !== id);
         this.usersSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -116,7 +132,7 @@ export class BingoService implements OnInit {
     return this.http.post<Race>(`${this.apiUrl}/races`, race).pipe(
       tap((data) => {
         this.racesSubject.next([...this.racesSubject.value, data]);
-      })
+      }),
     );
   }
 
@@ -124,10 +140,10 @@ export class BingoService implements OnInit {
     return this.http.put<Race>(`${this.apiUrl}/races/${race.round}`, race).pipe(
       tap((updated) => {
         const updatedList = this.racesSubject.value.map((r) =>
-          r.round === updated.round ? updated : r
+          r.round === updated.round ? updated : r,
         );
         this.racesSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -135,10 +151,10 @@ export class BingoService implements OnInit {
     return this.http.delete<void>(`${this.apiUrl}/races/${id}`).pipe(
       tap(() => {
         const updatedList = this.racesSubject.value.filter(
-          (r) => r.round !== id
+          (r) => r.round !== id,
         );
         this.racesSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -153,18 +169,23 @@ export class BingoService implements OnInit {
     userId: string,
     raceId: number,
     year: string,
-    type: BingoType
+    type: BingoType,
   ): void {
+    console.log(
+      'asasdas',
+      `${this.apiUrl}/bingos?year=${year}&userId=${userId}&raceId=${raceId}&type=${type}`,
+    );
+
     this.http
       .get<Bingo[]>(
-        `${this.apiUrl}/bingos?year=${year}&userId=${userId}&raceId=${raceId}&type=${type}`
+        `${this.apiUrl}/bingos?year=${year}&userId=${userId}&raceId=${raceId}&type=${type}`,
       )
       .pipe(
         tap((data) => {
           if (data.length) {
             this.activeBingoSubject.next(data[0]);
             this.getRulesForBingo(
-              this.activeBingoSubject.value.rulesIds
+              this.activeBingoSubject.value.rulesIds,
             ).subscribe((e: Rule[]) => {
               const bingo = { ...this.activeBingoSubject.value, rules: e };
               this.activeBingoSubject.next(bingo);
@@ -172,7 +193,7 @@ export class BingoService implements OnInit {
           } else {
             this.generateBingo(userId, raceId, year, type).subscribe();
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -187,10 +208,10 @@ export class BingoService implements OnInit {
       .pipe(
         tap((updated) => {
           const updatedList = this.bingosSubject.value.map((b) =>
-            b.id === updated.id ? updated : b
+            b.id === updated.id ? updated : b,
           );
           this.bingosSubject.next(updatedList);
-        })
+        }),
       );
   }
 
@@ -218,10 +239,10 @@ export class BingoService implements OnInit {
           this.activeBingoSubject.next(newBingo);
 
           const updatedList = this.bingosSubject.value.map((b) =>
-            b.id === updated.id ? updated : b
+            b.id === updated.id ? updated : b,
           );
           this.bingosSubject.next(updatedList);
-        })
+        }),
       );
   }
 
@@ -245,10 +266,10 @@ export class BingoService implements OnInit {
           const { win, ...newBingo } = this.activeBingoSubject.value;
           this.activeBingoSubject.next(newBingo);
           const updatedList = this.bingosSubject.value.map((b) =>
-            b.id === updated.id ? updated : b
+            b.id === updated.id ? updated : b,
           );
           this.bingosSubject.next(updatedList);
-        })
+        }),
       );
   }
 
@@ -257,7 +278,7 @@ export class BingoService implements OnInit {
       tap(() => {
         const updatedList = this.bingosSubject.value.filter((b) => b.id !== id);
         this.bingosSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -273,9 +294,9 @@ export class BingoService implements OnInit {
       map((items) => {
         const filteredItems = items.filter((item) => ids.includes(item.id));
         return filteredItems.sort(
-          (a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)
+          (a, b) => ids.indexOf(a.id) - ids.indexOf(b.id),
         );
-      })
+      }),
     );
   }
 
@@ -285,7 +306,7 @@ export class BingoService implements OnInit {
     return this.http.post<Rule>(`${this.apiUrl}/rules`, newRule).pipe(
       tap((data) => {
         this.rulesSubject.next([...this.rulesSubject.value, data]);
-      })
+      }),
     );
   }
 
@@ -293,10 +314,10 @@ export class BingoService implements OnInit {
     return this.http.put<Rule>(`${this.apiUrl}/rules/${rule.id}`, rule).pipe(
       tap((updated) => {
         const updatedList = this.rulesSubject.value.map((r) =>
-          r.id === updated.id ? updated : r
+          r.id === updated.id ? updated : r,
         );
         this.rulesSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -305,7 +326,7 @@ export class BingoService implements OnInit {
       tap(() => {
         const updatedList = this.rulesSubject.value.filter((r) => r.id !== id);
         this.rulesSubject.next(updatedList);
-      })
+      }),
     );
   }
 
@@ -324,7 +345,7 @@ export class BingoService implements OnInit {
           };
           this.activeBingoSubject.next(bingo);
           this.checkIfBingoWin();
-        })
+        }),
       );
   }
 
@@ -343,7 +364,7 @@ export class BingoService implements OnInit {
           };
           this.activeBingoSubject.next(bingo);
           this.checkIfBingoWin();
-        })
+        }),
       );
   }
 
@@ -361,12 +382,14 @@ export class BingoService implements OnInit {
     const date = this.getDate();
     const year = date.date.split('-')[0];
     const activeRace = this.isActiveSession();
+
+    console.log('activeRace.round', activeRace);
     if (this.activeUser && activeRace && year) {
       this.getBingosByRaceAndUser(
         this.activeUser.id,
         activeRace.round,
         year,
-        'RACE'
+        'RACE',
       );
     }
   }
@@ -375,13 +398,13 @@ export class BingoService implements OnInit {
     userId: string,
     raceId: number,
     year: string,
-    type: BingoType
+    type: BingoType,
   ): Observable<Bingo> {
     const simpleRules = this.rulesSubject.value.filter(
-      (e) => e.jokerUserId === undefined
+      (e) => e.jokerUserId === undefined,
     );
     const jokerRules = this.rulesSubject.value.filter(
-      (e) => e.jokerUserId === this.getActiveUser()?.id
+      (e) => e.jokerUserId === this.getActiveUser()?.id,
     );
 
     const bingoRules = this.getRandomizedArray(jokerRules, simpleRules);
@@ -398,12 +421,13 @@ export class BingoService implements OnInit {
       year: Number(year),
       refreshNumber: 3,
     };
+    console.log('hehehehe', newBingo);
 
     return this.addBingo(newBingo).pipe(
       tap((data) => {
         const newBingoWithRules = { ...newBingo, rules: bingoRules };
         this.activeBingoSubject.next(newBingoWithRules);
-      })
+      }),
     );
   }
 
@@ -423,7 +447,7 @@ export class BingoService implements OnInit {
     const selectedFromArrayTwo = shuffledArrayTwo.slice(0, ArrayTwoCount);
 
     return [...shuffledOne, ...selectedFromArrayTwo].sort(
-      () => Math.random() - 0.5
+      () => Math.random() - 0.5,
     );
   }
 
@@ -449,6 +473,7 @@ export class BingoService implements OnInit {
     const races = this.racesSubject.value;
     const race = races.find((r) => this.isFourDaysAwayFromToday(r.sessions.gp));
 
+    // console.log('race', race);
     if (race) return race;
     return null;
   }
@@ -462,12 +487,12 @@ export class BingoService implements OnInit {
     const targetMidnight = new Date(
       targetDate.getFullYear(),
       targetDate.getMonth(),
-      targetDate.getDate()
+      targetDate.getDate(),
     );
     const todayMidnight = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
 
     const diffDays =
@@ -500,11 +525,11 @@ export class BingoService implements OnInit {
     const ok = this.hasTrueLine(this.activeBingoSubject.value.checkedRules);
     if (ok && !this.activeBingoSubject.value.win) {
       this.setBingoToWin(this.activeBingoSubject.value.id!).subscribe(
-        (b) => {}
+        (b) => {},
       );
     } else if (!ok && this.activeBingoSubject.value.win) {
       this.setBingoToNotWin(this.activeBingoSubject.value.id!).subscribe(
-        (b) => {}
+        (b) => {},
       );
     }
   }
@@ -539,71 +564,43 @@ export class BingoService implements OnInit {
   }
 
   getWinnersForHomeCard(round: number): User[] {
-    if (round) {
-      const filteredBingos = this.bingosSubject.value.filter(
-        (b) => b.raceId === round
-      );
+    if (!round) return [];
 
-      const bingoWinByBingo = filteredBingos.filter(
-        (b) => b.win !== undefined && b.win !== null
-      );
-      const bingoWinByCount = filteredBingos.filter((b) => !b.win);
+    // Filter bingos for this round
+    const filteredBingos = this.bingosSubject.value.filter(
+      (b) => b.raceId === round,
+    );
 
-      bingoWinByBingo.sort((a, b) => {
-        const dateA = new Date(a.win!).getTime();
-        const dateB = new Date(b.win!).getTime();
-        return dateA - dateB;
-      });
+    // Map to users who actually have a bingo in this round
+    const usersWithBingo = filteredBingos
+      .map((bingo) =>
+        this.usersSubject.value.find((u) => u.id === bingo.userId),
+      )
+      .filter((u): u is User => u !== undefined); // remove undefined
 
-      bingoWinByCount.sort((a, b) => {
-        const dateA = new Date(
-          a.lastChecked[a.lastChecked.length - 1]
-        ).getTime();
-        const dateB = new Date(
-          b.lastChecked[b.lastChecked.length - 1]
-        ).getTime();
-        return dateA - dateB;
-      });
+    // Sort winners first (earliest win), then non-winners by checked rules
+    usersWithBingo.sort((a, b) => {
+      const bingoA = filteredBingos.find((bingo) => bingo.userId === a.id);
+      const bingoB = filteredBingos.find((bingo) => bingo.userId === b.id);
 
-      const sortedBingos = this.sortByDateDescending(filteredBingos, 'win');
+      const winA = bingoA?.win ? new Date(bingoA.win).getTime() : null;
+      const winB = bingoB?.win ? new Date(bingoB.win).getTime() : null;
 
-      let winnersByBingo: User[] = [];
-      let winnersByNumber: User[] = [];
+      // Winner vs non-winner
+      if (winA && !winB) return -1;
+      if (!winA && winB) return 1;
 
-      bingoWinByCount.sort((a, b) => {
-        const countDiff = b.lastChecked.length - a.lastChecked.length;
+      // Both winners → earliest win first
+      if (winA && winB) return winA - winB;
 
-        if (countDiff !== 0) return countDiff;
+      // Both non-winners → most checked rules first
+      const checkedA = bingoA?.checkedRules.filter(Boolean).length ?? 0;
+      const checkedB = bingoB?.checkedRules.filter(Boolean).length ?? 0;
 
-        const aLast = new Date(
-          a.lastChecked[a.lastChecked.length - 1]
-        ).getTime();
-        const bLast = new Date(
-          b.lastChecked[b.lastChecked.length - 1]
-        ).getTime();
+      return checkedB - checkedA;
+    });
 
-        return bLast - aLast;
-      });
-
-      const result = bingoWinByBingo.slice(0, 3);
-
-      for (const item of bingoWinByCount) {
-        if (result.length >= 3) break;
-        result.push(item);
-      }
-
-      result.forEach((bingo) => {
-        if (winnersByBingo.length > 2) return;
-        winnersByBingo.push(
-          this.usersSubject.value.find((user) => user.id === bingo.userId) ||
-            ({} as User)
-        );
-      });
-
-      return winnersByBingo;
-    }
-
-    return [];
+    return usersWithBingo;
   }
 
   sortByDateDescending(items: any[], dateKey: string): any[] {
@@ -621,15 +618,15 @@ export class BingoService implements OnInit {
     const rules = this.rulesSubject.value || [];
     const selectedRules = this.activeBingoSubject.value.rules || [];
     const index = selectedRules.findIndex(
-      (rule) => rule.id === ruleIdToReplace
+      (rule) => rule.id === ruleIdToReplace,
     );
 
     const usedIds = new Set(
-      selectedRules.filter((_, idx) => idx !== index).map((rule) => rule.id)
+      selectedRules.filter((_, idx) => idx !== index).map((rule) => rule.id),
     );
     const candidates = rules.filter((rule) => !usedIds.has(rule.id));
     const availableCandidates = candidates.filter(
-      (rule) => rule.id !== ruleIdToReplace
+      (rule) => rule.id !== ruleIdToReplace,
     );
 
     const replacement =
@@ -648,11 +645,10 @@ export class BingoService implements OnInit {
 
     const newSelected = [...selectedRules];
     newSelected[index] = replacement;
-    // console.log('this.activeBingoSubject.value', this.activeBingoSubject.value)
 
     const newBingo = {
       id: this.activeBingoSubject.value.id,
-      reaceId: this.activeBingoSubject.value.raceId,
+      raceId: this.activeBingoSubject.value.raceId,
       userId: this.activeBingoSubject.value.userId,
       checkedRules: this.activeBingoSubject.value.checkedRules,
       rulesIds: ruleIds,
@@ -669,8 +665,6 @@ export class BingoService implements OnInit {
       };
       this.activeBingoSubject.next(newBingoWithRules);
     });
-
-    // console.log(this.activeBingoSubject.value)
 
     return replacement;
   }

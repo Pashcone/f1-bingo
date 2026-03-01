@@ -13,6 +13,7 @@ export type Bingo = {
 
 export type BingoWithRules = Bingo & {
   rules?: Rule[];
+  replacedRules?: string[];
 };
 
 export type Rule = {
