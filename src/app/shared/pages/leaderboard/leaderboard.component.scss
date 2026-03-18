@@ -1,0 +1,41 @@
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.standings-table,
+.leaderboard-table {
+  width: max-content; /* allows table to expand horizontally */
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.standings-table th,
+.standings-table td,
+.leaderboard-table th,
+.leaderboard-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+}
+
+.standings-table th,
+.leaderboard-table th {
+  background: #f4f4f4;
+}
+
+.driver {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.driver-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.total {
+  font-weight: bold;
+}

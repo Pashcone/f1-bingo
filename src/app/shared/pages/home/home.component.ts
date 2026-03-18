@@ -15,7 +15,12 @@ import { RaceCardComponent } from '../../components/race-card/race-card.componen
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-  constructor(private service: BingoService, private router: Router) {}
+  constructor(
+    private service: BingoService,
+    private router: Router,
+  ) {}
+
+  racesV2: any[] = [];
 
   users: User[] = [];
   rules: Rule[] = [];
@@ -23,7 +28,7 @@ export class HomeComponent implements OnInit {
   bingos: Bingo[] = [];
   activeRace: Race | null = null;
 
-  csf : any;
+  csf: any;
   ngOnInit(): void {
     this.service.users$.subscribe((user: User[]) => {
       this.users = user;
@@ -42,8 +47,13 @@ export class HomeComponent implements OnInit {
     this.service.bingos$.subscribe((bingos: Bingo[]) => {
       this.bingos = bingos;
     });
+    this.service.bingos$.subscribe((bingos: Bingo[]) => {
+      this.bingos = bingos;
+    });
 
-    this.csf = this.service.calculateWinners()
+    this.service.racesV2$.subscribe((racesV2: any[]) => {
+      this.racesV2 = racesV2;
+    });
   }
 
   capitalizeFirstLetter(arr: string) {
@@ -51,7 +61,7 @@ export class HomeComponent implements OnInit {
   }
 
   getCSF() {
-    console.log(this.service.getWinnersForHomeCard(14))
+    console.log(this.service.getWinnersForHomeCard(14));
   }
 
   extractDateParts(dateStr: string): { monthAbbr: string; day: string } {
@@ -63,7 +73,7 @@ export class HomeComponent implements OnInit {
     return { monthAbbr, day };
   }
 
-  redirectToRuleForm(){
+  redirectToRuleForm() {
     this.router.navigate(['/rules']);
   }
 }

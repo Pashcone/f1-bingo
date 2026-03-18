@@ -1,0 +1,61 @@
+<div class="standings-container">
+  <h2 class="title">Per-Race Standings</h2>
+  <div class="table-wrapper">
+    <table class="standings-table">
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Driver</th>
+          @for (race of raceNumbers; track race) {
+            <th>Race {{ race }}</th>
+          }
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (result of seasonResults; track result.user.id; let i = $index) {
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td class="driver">
+              @if (result.user.imagePath) {
+                <img [src]="result.user.imagePath" alt="{{ result.user.name }}" class="driver-img">
+              }
+              {{ result.user.name }}
+            </td>
+            @for (race of raceNumbers; track race) {
+              <td>{{ getPointsForRace(result.user.id, race) }}</td>
+            }
+            <td class="total">{{ result.totalPoints }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="title" style="margin-top:2rem;">Leaderboard (Total Points)</h2>
+  <div class="table-wrapper">
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Driver</th>
+          <th>Total Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (result of leaderboard; track result.user.id; let i = $index) {
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td class="driver">
+              @if (result.user.imagePath) {
+                <img [src]="result.user.imagePath" alt="{{ result.user.name }}" class="driver-img">
+              }
+              {{ result.user.name }}
+            </td>
+            <td class="total">{{ result.totalPoints }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

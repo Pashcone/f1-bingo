@@ -17,6 +17,7 @@ export class BingoGameComponent implements OnInit, OnChanges {
   bingo$?: Observable<BingoWithRules>;
   activeRule: Rule = {} as Rule;
   activeIndex: number = -1;
+  checkedRulesCount = 0;
   constructor(private service: BingoService) {}
 
   ngOnInit(): void {
@@ -24,7 +25,7 @@ export class BingoGameComponent implements OnInit, OnChanges {
     this.bingo$ = this.service.activeBingo$;
     this.bingo$.subscribe((e) => {
       this.activeBingo = e;
-      console.log('activeBingo', e.rulesIds[0]);
+      // console.log('activeBingo', this.activeBingo);
     });
   }
 
@@ -40,12 +41,12 @@ export class BingoGameComponent implements OnInit, OnChanges {
   }
 
   isRuleChecked(index: number): boolean {
-    if(this.activeBingo?.checkedRules[index]) return true;
+    if (this.activeBingo?.checkedRules[index]) return true;
     return false;
   }
 
   addCheck(ruleIndex: number) {
-    this.activeRule = this.activeBingo!.rules![ruleIndex]
+    this.activeRule = this.activeBingo!.rules![ruleIndex];
     this.activeIndex = ruleIndex;
   }
 
@@ -57,14 +58,16 @@ export class BingoGameComponent implements OnInit, OnChanges {
     this.service.deleteCheckedRule(this.activeIndex).subscribe();
   }
 
-  closeDialog(){
+  closeDialog() {
     this.activeRule = {} as Rule;
     this.activeIndex = -1;
   }
 
   changeRule() {
-    this.activeRule = this.service.replaceRuleInSelected(this.activeRule.id)
-
+    this.activeRule = this.service.replaceRuleInSelected(this.activeRule.id);
   }
 
+  countCheckedRules(): number {
+    return this.activeBingo!.checkedRules.filter((e) => e === true).length;
+  }
 }

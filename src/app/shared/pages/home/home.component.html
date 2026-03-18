@@ -4,9 +4,6 @@
   <app-race-card class="card" [race]="race" [active]="true"></app-race-card>
   } }
   @for (race of this.races; track $index) {
-    <!-- @if(this.activeRace?.round === race.round){
-      <app-race-card class="card" [race]="race" [active]="true"></app-race-card>
-    } @else { -->
       <app-race-card class="card" [race]="race"></app-race-card>
   }
 </div>

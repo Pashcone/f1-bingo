@@ -1,4 +1,4 @@
-import { Bingo, Rule } from './bingo.type';
+import { Bingo } from './bingo.type';
 
 export type User = {
   id: string;
